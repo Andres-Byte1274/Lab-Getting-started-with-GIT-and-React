@@ -42,7 +42,20 @@ app.get("/users/:id", (req, res) => {
   }
 });
 
+//modify this function
 const addUser = (user) => {
+  //Generates a random number
+  const max = 1000000;
+  let user_id = String(Math.floor(Math.random() * max));
+  //Create a set to hold the user ids
+  const user_ids = new Set(users.users_list.map(u => String(u.id)));
+  //Iterate through the ids until a valid one is found
+  while(user_ids.has(user_id)){
+    user_id = String(Math.floor(Math.random() * max));
+  }
+  //Then assign the id to the user
+  user.id = user_id;
+  console.log("The newly added user is " + user.name + " and the id is " + user.id);
   users["users_list"].push(user);
   return user;
 };
@@ -50,7 +63,17 @@ const addUser = (user) => {
 app.post("/users", (req, res) => {
   const userToAdd = req.body;
   addUser(userToAdd);
-  res.send();
+  res.status(201).location(`/users/${userToAdd.id}`).json(userToAdd);
+});
+
+app.delete("/users/:id", (req, res) => {
+  const userToDeleteId = req.params.id;
+  const index = users.users_list.findIndex(u => String(u.id) === String(userToDeleteId));
+  if(index === -1){
+    return res.status(404).send("Resource not found");
+  }
+  users.users_list.splice(index, 1);
+  return res.status(204).end();
 });
 
 app.listen(port, () => {
