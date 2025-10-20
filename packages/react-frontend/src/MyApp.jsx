@@ -7,33 +7,23 @@ import Form from "./Form";
 function MyApp() {
   const [characters, setCharacters] = useState([]);
 
-  function removeOneCharacter(index) {
-
-    const target = characters[index];
-
-    if(!target){
-      return; 
-    }
-
-    const promise = fetch(`Http://localhost:8000/users/${target.id}`, {method: "DELETE"})
-
-    .then((res) => {
-      if(res.status === 404){
-        throw new Error(`Delete failed (${res.status})`);
-      }
-      else if(res.status === 204){
-        const updated = characters.filter((character, i) => {
-        return i !== index;
-        });
-        setCharacters(updated);
-      }
-      else{
-        throw new Error(`Delete failed (${res.status})`);
-      }
-    })
-    .catch((error) => {
+  function removeOneCharacter(_id) {
+    const promise = fetch(`http://localhost:8000/users/${_id}`, { method: "DELETE" })
+      .then((res) => {
+        if (res.status === 404) {
+          throw new Error(`Delete failed (${res.status})`);
+        } else if (res.status === 204) {
+          const updated = characters.filter((u) => (u._id ?? u.id) !== _id);
+          setCharacters(updated);
+        } else {
+          throw new Error(`Delete failed (${res.status})`);
+        }
+      })
+      .catch((error) => {
         console.log(error);
-    })
+      });
+
+    return promise;
   }
 
   function updateList(person) { 
